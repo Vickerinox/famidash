@@ -1,6 +1,7 @@
 @echo off
 
 setlocal EnableDelayedExpansion
+cd "%~dp0"
 set n=0
 SET all_levels= ^
     stereomadness ^
@@ -15,14 +16,19 @@ SET all_levels= ^
     xstep ^
     clutterfunk ^
     theoryofeverything ^
+    electroman ^
+    nightmare ^
+    decode ^
+    luckydraw ^
     test ^
     test2 ^
     test3 ^
     test4 ^
+    danger ^
 
 
 echo Exporting everything %all_levels%
-export_levels.py --folder "LEVEL DATA" %all_levels%
+python export_levels.py --folder "%ownpath%LEVEL DATA" %all_levels%
 
 echo Export finished.
 pause

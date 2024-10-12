@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 
 def readIncFile (file : str) -> list:
@@ -46,15 +48,16 @@ def incrIncFile(inFile : io.TextIOWrapper, outFileC : io.TextIOWrapper, outFileA
             return count
 
 if __name__ == "__main__":
-    import glob, os
+    import glob, os, re
     outfileC = open(sys.path[0]+"/EXPORTS/musicDefines.h", "w")
     outfileAsm = open(sys.path[0]+"/EXPORTS/music_songlist.inc", "w")
     count = 0
     for filename in glob.glob(sys.path[0]+"/EXPORTS/music_*_songlist.inc"):
         print ("file: " + filename)
         count = incrIncFile(open(filename), outfileC, outfileAsm, count)
-        # os.remove(filename)
+        os.remove(filename)
     outfileC.write(f"#define song_max {count}")
+    outfileC.write("\n")
     outfileC.write("\n".join(readIncFile("sfx_sfxlist")))
     outfileC.close()
     outfileAsm.write(f"song_max = {count}")
@@ -64,8 +67,8 @@ if __name__ == "__main__":
     for filename in glob.glob(sys.path[0]+"/EXPORTS/music_*.s"):
         print ("file: " + filename)
         prefix = filename[len(sys.path[0]+"/EXPORTS/music_"):-2]
-        print(prefix)
-    # import binpacking
-    # data = [3943, 1938, 1389, 1974, 3805, 1038, 841, 1133, 3315, 1498, 1570, 880, 1309, 642]
-    # bins = binpacking.to_constant_volume(data, 8192-600)
-    # print("===== list\n",data,"\n",bins)
+        with open(filename, "rb") as file:
+            filedata = file.read()
+        with open(filename, "wb") as file:
+            file.write(re.sub("music_data_famidash_music".encode(), ("music_data_famidash_music"+prefix).encode(), filedata))
+        # print(prefix)

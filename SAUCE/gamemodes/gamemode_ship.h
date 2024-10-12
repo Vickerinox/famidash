@@ -1,43 +1,70 @@
-#pragma code-name(push, "XCD_BANK_01")
-#pragma data-name(push, "XCD_BANK_01")
-#pragma rodata-name(push, "XCD_BANK_01")
 
+CODE_BANK_PUSH("XCD_BANK_01")
+
+void ufo_ship_eject();
 void ship_movement(void){
-// handle y
 
-// currplayer_gravity
-	// currplayer_vel_y is signed
-	//if(currplayer_vel_y < 0x400){
-	if (!dashing[currplayer]) {
-		if(!mini) {
-			if(!currplayer_gravity) {
-				currplayer_vel_y += SHIP_GRAVITY;
-			}
-			else {
-				currplayer_vel_y -= SHIP_GRAVITY;
-			}
-			if(currplayer_vel_y > SHIP_MAX_FALLSPEED) currplayer_vel_y += -SHIP_GRAVITY;
-			if(currplayer_vel_y < -SHIP_MAX_FALLSPEED) currplayer_vel_y -= -SHIP_GRAVITY;
+	fallspeed_big = SHIP_MAX_FALLSPEED;
+	fallspeed_mini = MINI_SHIP_MAX_FALLSPEED;
+	gravity_big = SHIP_GRAVITY;
+	gravity_mini = MINI_SHIP_GRAVITY;
+	common_gravity_routine();
 
-		}
-		else {
-			if(!currplayer_gravity) {
-				currplayer_vel_y += MINI_SHIP_GRAVITY;
-			}
-			else {
-				currplayer_vel_y -= MINI_SHIP_GRAVITY;
-			}
-			if(currplayer_vel_y > MINI_SHIP_MAX_FALLSPEED) currplayer_vel_y += -MINI_SHIP_GRAVITY;
-			if(currplayer_vel_y < -MINI_SHIP_MAX_FALLSPEED) currplayer_vel_y -= -MINI_SHIP_GRAVITY;
-		}
-			
-			
+	if(currplayer_vel_y > (!mini ? SHIP_MAX_FALLSPEED : MINI_SHIP_MAX_FALLSPEED)) currplayer_vel_y = (!mini ? SHIP_MAX_FALLSPEED : MINI_SHIP_MAX_FALLSPEED);
+	if(currplayer_vel_y < (!mini ? -SHIP_MAX_FALLSPEED : -MINI_SHIP_MAX_FALLSPEED)) currplayer_vel_y = (!mini ? -SHIP_MAX_FALLSPEED : -MINI_SHIP_MAX_FALLSPEED);
 
-		currplayer_y += currplayer_vel_y;
-	}	
-	else currplayer_vel_y = 1;
+
 	Generic.x = high_byte(currplayer_x);
 	Generic.y = high_byte(currplayer_y);
+	
+	ufo_ship_eject();
+
+	if (bigboi) {
+			Generic.y -= 15;
+			ufo_ship_eject();
+		
+			Generic.x += 15;
+			ufo_ship_eject();
+
+			Generic.y += 15;
+			ufo_ship_eject();
+	}
+	else {
+		if (tallmode) {
+			Generic.y = high_byte(currplayer_y) - 15;
+			ufo_ship_eject();
+		}	
+		if (longmode) {
+			Generic.x += 15;
+			Generic.y = high_byte(currplayer_y);
+			ufo_ship_eject();
+		}	
+	}		
+
+	// check collision down a little lower than CUBE
+	Generic.y = high_byte(currplayer_y); // the rest should be the same
+	Generic.x = high_byte(currplayer_x); // the rest should be the same
+	
+
+	if(controllingplayer->a) {
+		if (!mini) {
+			if (!currplayer_gravity){
+			    currplayer_vel_y -= SHIP_GRAVITY<<1;
+				} else {
+			    currplayer_vel_y += SHIP_GRAVITY<<1;
+			}
+		}
+		else {
+			if (!currplayer_gravity){
+			    currplayer_vel_y -= MINI_SHIP_GRAVITY<<1;
+				} else {
+			    currplayer_vel_y += MINI_SHIP_GRAVITY<<1;
+			}
+		}
+	}	
+}
+
+void ufo_ship_eject() {
 	if (mini) {
 		if (high_byte(currplayer_vel_y)) Generic.y -= 1;
 		else Generic.y += 1;
@@ -56,30 +83,6 @@ void ship_movement(void){
 		    currplayer_vel_y = 0;
 		}
 	}
+}	
 
-	// check collision down a little lower than CUBE
-	Generic.y = high_byte(currplayer_y); // the rest should be the same
-	
-
-	if(pad[controllingplayer] & PAD_A) {
-		if (!mini) {
-			if (!currplayer_gravity){
-			    currplayer_vel_y -= SHIP_GRAVITY<<1;
-				} else {
-			    currplayer_vel_y += SHIP_GRAVITY<<1;
-			}
-		}
-		else {
-			if (!currplayer_gravity){
-			    currplayer_vel_y -= MINI_SHIP_GRAVITY<<1;
-				} else {
-			    currplayer_vel_y += MINI_SHIP_GRAVITY<<1;
-			}
-		}
-	}	
-}
-
-
-#pragma code-name(pop)
-#pragma data-name(pop) 
-#pragma rodata-name(pop)
+CODE_BANK_POP()

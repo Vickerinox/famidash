@@ -32,32 +32,116 @@
 #define	HARDER 3
 #define	INSANE 4
 #define	DEMON 5
+#define	DANGER 6
 
-const unsigned char difficulty_pal[] ={
-	0x21, 0x06, // easy
-    0x2A, 0x30, // normal
-    0x28, 0x30, // hard
-	0x16, 0x30, // harder
-    0x24, 0x06, // insane
-    0x16, 0x30 // KING DEDEdemon
+
+#define SPIKESA 0
+#define SPIKESB 2
+#define BLOCKSA 4
+#define BLOCKSB 6
+#define BLOCKSC 8
+#define BLOCKSD 10
+#define SAWBLADESA 12
+#define LETTERBANK 96
+
+#define DECO1 26
+#define DECOCLOUD 30
+#define EXTRASPRITES1 34
+
+const uint8_t DECOTYPE[] = {
+	DECO1,
+	DECO1,
+	DECO1,
+	DECO1,
+	DECO1,
+	DECO1,
+	DECO1,
+	DECO1,
+	DECO1,
+	DECOCLOUD,
+	DECOCLOUD, //clutterfunk
+	DECOCLOUD,
+	DECOCLOUD,
+	DECOCLOUD,
+	DECOCLOUD,
+	DECOCLOUD, //lucky draw
+	EXTRASPRITES1,
+	EXTRASPRITES1,
+	DECOCLOUD,
+	EXTRASPRITES1,
 };
 
-const unsigned short songtime[] = {	//for looping in practice mode
-	5160, //stereo madness
-	4900, //back on track
-	5465, //polargeist
-	4940, //dryout
-	15000, //base after base
-	4900, //cant let go
-	5285, //jumper
-	15000, //time machine
-	5240, //cycles
-	15000, //xstep
-	15000, //clutterfunk
-	14000, //menu
-	14000, //practice
+const unsigned char spike_set[] = {
+	SPIKESA, //stereo madness
+	SPIKESA, //back on track
+	SPIKESA, //polargeist
+	SPIKESA, //dryout
+	SPIKESA, //base after base
+	SPIKESA, //cant let go
+	SPIKESA, //jumper
+	SPIKESA, //time machine
+	SPIKESA, //cycles
+	SPIKESB, //xstep
+	SPIKESB, //clutterfunk
+	SPIKESB, //theory of everything
+	SPIKESB, //electroman
+	SPIKESB, //nightmare
+	SPIKESB, //decode
+	SPIKESB, //lucky draw
+	SPIKESB, //test1
+	SPIKESB, //test2
+	SPIKESB, //test3
+	SPIKESB, //test4
+	SAWBLADESA, //danger
 };
 
+const unsigned char block_set[] = {
+	BLOCKSA, //stereo madness
+	BLOCKSA, //back on track
+	BLOCKSA, //polargeist
+	BLOCKSA, //dryout
+	BLOCKSA, //base after base
+	BLOCKSA, //cant let go
+	BLOCKSA, //jumper
+	BLOCKSA, //time machine
+	BLOCKSA, //cycles
+	BLOCKSC, //xstep
+	BLOCKSD, //clutterfunk
+	BLOCKSB, //theory of everything
+	BLOCKSB, //electroman
+	BLOCKSC, //nightmare
+	BLOCKSB, //decode
+	BLOCKSB, //lucky draw
+	BLOCKSA, //test1
+	BLOCKSB, //test2
+	BLOCKSB, //test3
+	BLOCKSA, //test4
+	SAWBLADESA, //danger
+};
+
+const unsigned char saw_set[] = {
+	SAWBLADESA, //stereo madness
+	SAWBLADESA, //back on track
+	SAWBLADESA, //polargeist
+	SAWBLADESA, //dryout
+	SAWBLADESA, //base after base
+	SAWBLADESA, //cant let go
+	SAWBLADESA, //jumper
+	SAWBLADESA, //time machine
+	SAWBLADESA, //cycles
+	SAWBLADESA, //xstep
+	SAWBLADESA, //clutterfunk
+	SAWBLADESA, //theory of everything
+	SAWBLADESA, //electroman
+	SAWBLADESA, //nightmare
+	SAWBLADESA, //decode
+	LETTERBANK, //lucky draw
+	SAWBLADESA, //test1
+	SAWBLADESA, //test2
+	SAWBLADESA, //test3
+	SAWBLADESA, //test4
+	SAWBLADESA, //danger
+};
 
 
 const unsigned char difficulty_list[] = {
@@ -73,10 +157,15 @@ const unsigned char difficulty_list[] = {
     INSANE,
     INSANE,
     INSANE,
-    EASY,
-    EASY,
-    EASY,
+    INSANE,
+    DEMON, //decode
+    DEMON, //nightmare
+    DEMON, //lucky draw
     DEMON,
+    DEMON,
+    DEMON,
+    DEMON,
+    DANGER,
 };
 
 const unsigned char stars_list[] = {
@@ -92,10 +181,15 @@ const unsigned char stars_list[] = {
 	10,
 	11,
 	12,
+	10,
+	10,
+	10,
+	10,
 	0,
 	0,
 	0,
 	0,
+	69,
 };
 const unsigned char colors_list[] = {
 	0x12,
@@ -107,81 +201,21 @@ const unsigned char colors_list[] = {
 	0x2A,
 	0x2C,
 	0x11,
-	0x12,
-	0x14,
-	0x15,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
 };
 // exported from export_levels.py
 
-extern const unsigned char* level_list[];
-extern const unsigned char* sprite_list[];
-extern const unsigned char level_bank_list[];
-extern const unsigned char sprite_bank_list[];
 
-// const unsigned char * const level_list[] = {
-//     stereomadness_,
-//     backontrack_,
-//     polargeist_,
-//     dryout_,
-//     baseafterbase_,
-//     cantletgo_,
-//     jumper_,
-//     timemachine_,
-//     cycles_,
-//     xstep_,
-//     clutterfunk_,
-//     test_,
-//     test2_,
-//     };
 
-// const unsigned char * const sprite_list[] = {
-//     stereomadness_SP,
-//     backontrack_SP,
-//     polargeist_SP,
-//     dryout_SP,
-//     baseafterbase_SP,
-//     cantletgo_SP,
-//     jumper_SP,
-//     timemachine_SP,
-//     cycles_SP,
-//     xstep_SP,
-//     clutterfunk_SP,
-//     test_SP,
-//     test2_SP,
-// };
 
-// const unsigned char level_bank_list[] = {
-//     1,
-//     8,
-//     2,
-//     7,
-//     5,
-//     3,
-//     4,
-//     9,
-//     6,
-//     0x0A,
-//     0x0E, //clutterfunk
-//     0x0C,
-//     0x0D,
-// };
 
-// const unsigned char sprite_bank_list[] = {
-//     0,
-//     0,
-//     0,
-//     1,
-//     0,
-//     1,
-//     1,
-//     0,
-//     0,
-//     0,
-//     0, //clutterfunk
-//     1,
-//     1,
-// };
+static const uint8_t iconTable[] = {
+	0, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E, 0x20, 0x22, 0x24, 0x26, 0x40, 0x42, 0x44, 0x46, 0x48, 0x4A, 0x4C, 0x4E, 0x60, 0x62, 0x64, 0x66, 0x68, 0x6A, 0x6C
+};
+
+
+extern const unsigned char level_list_lo[];
+extern const unsigned char level_list_hi[];
+extern const unsigned char level_list_bank[];
+extern const unsigned char sprite_list_lo[];
+extern const unsigned char sprite_list_hi[];
+extern const unsigned char sprite_list_bank[];

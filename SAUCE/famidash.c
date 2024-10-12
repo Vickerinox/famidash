@@ -29,52 +29,41 @@
 // debug lmao
 void main(){
     ppu_off();
-
     ppu_mask(0x00 | (1 << 1) | (1 << 2));
+	mmc3_set_8kb_chr(MENUBANK);
 
-    // banking for CHR to allocate dierctly
-    /*
-    mmc3_set_2kb_chr_bank_0(0);
-    mmc3_set_2kb_chr_bank_1(2);
-    mmc3_set_1kb_chr_bank_0(4);
-    mmc3_set_1kb_chr_bank_1(5);
-    mmc3_set_1kb_chr_bank_2(6);
-    mmc3_set_1kb_chr_bank_3(7);
-    */
-    
-	mmc3_set_8kb_chr(62);
+	// disable debug mode toggle
+	options &= debugtoggle^0xFF;
 
-    pal_bg(paletteDefault);
-    pal_spr(paletteDefaultSP);
+    //pal_bg(paletteDefault);
+    //pal_spr(paletteDefaultSP);
     // use the second set of tiles for sprites
 	// both bg and sprites are set to 0 by default
 	bank_spr(1);
 
+	mouse.x = 0x78;
+	mouse.y = 0x60;
+	mouse_mask = 1;
     set_vram_buffer(); // do at least once
 
     // ppu_on_all();
     // pal_fade_to(4,0);
-    gameState = 0x01;
-    level = 0x00;
-  	player_gravity[0] = 0x00;
-	if (twoplayer) player_gravity[1] = 0x00;
-	else player_gravity[1] = 0x01;	
 
-	auto_fs_updates = 0;
+	// These are done at init time
+    // gameState = 0x01;
+    // level = 0x00;
+	// auto_fs_updates = 0;
 
-	// Get it? it spells DASH
-	if (SRAM_VALIDATE[0] != 0x0D
-	 || SRAM_VALIDATE[1] != 0x0A
-	 || SRAM_VALIDATE[2] != 0x01
-	 || SRAM_VALIDATE[3] != 0x07) {
-		// set the validation header and then reset coin counts
-		setdefaultoptions();
+	//mmc3_set_prg_bank_1(GET_BANK(playPCM));
+	//playPCM(0);
 
-	}
-	menuselection = 0;	
+
+	pal_spr(paletteDefaultSP);
+	kandotemp = 0;
+	crossPRGBankJump0(gameboy_check);
+	gameState = 0x05;
     while (1){
         ppu_wait_nmi();
-
 		switch (gameState){
 			case 0x01: {
 				mmc3_set_prg_bank_1(GET_BANK(state_menu));
@@ -83,40 +72,19 @@ void main(){
 					pal_fade_to_withmusic(4,0);
 					ppu_off();
 					pal_bg(splashMenu);
-					mmc3_set_8kb_chr(62);
-
-					set_scroll_x(0);
-					set_scroll_y(0);
-
 					kandowatchesyousleep = 1;
 
-					//	mmc3_set_prg_bank_1(GET_BANK(state_menu));
-
-					switch (kandotemp){
-						case 0x00:	music_play(song_menu_theme); break;
-						case 0x01:	break;
-					}
-
-					settingvalue = 0;
-
+					//
 					has_practice_point = 0;
-
-					#include "./defines/mainmenu_charmap.h"
-					// Enable SRAM write
-					POKE(0xA001, 0x80);
-
-					oam_clear();	
-
+					#include "defines/mainmenu_charmap.h"
 					levelselection();
 				}
-					break;
+				break;
 			}
 			case 0x02: {
-  				player_gravity[0] = 0x00;
-			//	if (twoplayer)
-				player_gravity[1] = 0x00;
-			//	else player_gravity[1] = 0x01;						
-				state_game(); break;
+				state_game();
+				use_auto_chrswitch = 0;
+				break;
 			}
 			case 0x03: {
 				mmc3_set_prg_bank_1(GET_BANK(state_lvldone));
@@ -128,7 +96,34 @@ void main(){
 				bgmtest();
 				break;
 			}
-			//case 0x04: state_demo(); break;
+			case 0x05: {
+				mmc3_set_prg_bank_1(GET_BANK(state_savefile_validate));
+				state_savefile_validate();
+				break;
+			}
+			case 0x06: {
+				mmc3_set_prg_bank_1(GET_BANK(state_savefile_editor));
+				state_savefile_editor();
+				break;
+			}
+
+
+			case 0xF0: {
+				mmc3_set_prg_bank_1(GET_BANK(funsettings));
+				funsettings();
+				break;
+			}
+
+			case 0xFE: {
+				mmc3_set_prg_bank_1(GET_BANK(state_exit));
+				state_exit();
+				break;
+			}
+			default: {
+				mmc3_set_prg_bank_1(GET_BANK(state_demo));
+				state_demo();
+				break;
+			}
 		}
     }
 }
@@ -142,33 +137,59 @@ void main(){
 // ============================================================
 
 void setdefaultoptions() {
-		SRAM_VALIDATE[0] = 0x0d;
-		SRAM_VALIDATE[1] = 0x0a;
-		SRAM_VALIDATE[2] = 0x01;
-		SRAM_VALIDATE[3] = 0x07;
-		for (tmp2 = 0; tmp2 <= LEVEL_COUNT; tmp2++) {
+	// Enable SRAM write
+	POKE(0xA001, 0x80);
+	
+
+	color_emphasis(COL_EMP_DARK);
+	mmc3_disable_irq();
+	// fill with zeros
+	memfill((uint8_t *)0x6000, 0, 0x1FFE);
+	edit_irq_table(0xff,0);
+	//sfx_play(sfx_death, 0);
+
+	color_emphasis(COL_EMP_NORMAL);
+
+	// set the first three bytes; LEET, and save version.
+	// if none of these are what is expected, the game will tell you
+	SRAM_VALIDATE[0] = 0x13;
+	SRAM_VALIDATE[1] = 0x37;
+	SRAM_VALIDATE[2] = FLAG_SAVE_VER;
+	
+	// only non-zero values need to be set here
+
+	twoplayer = 0;
+	//musicoff = 0;
+	//sfxoff = 0;
+	//jumpsound = 0;
+	//oneptwoplayer = 0;
+	//platformer = 0;
+	options = 0; 
+		tmp2 = 0;
+		do {
 			coin1_obtained[tmp2] = 0;
 			coin2_obtained[tmp2] = 0;
 			coin3_obtained[tmp2] = 0;
 			LEVELCOMPLETE[tmp2] = 0;
-		}
-		memfill(SRAM_VALIDATE+0x0E, 0, 0x1F-(0x0E - 1));
-		twoplayer = 0;
-		//musicoff = 0;
-		//sfxoff = 0;
-		//jumpsound = 0;
-		//oneptwoplayer = 0;
-		//platformer = 0;
-		options = 0; 
-
-
-		invisible = 0;
-		color1 = 0x2A;
-		color2 = 0X21;		
-		color3 = 0x0F;
-		discomode = 0;
-		icon = 0;
-		trails = 0;
-		decorations = 1;
-		return;
+			level_completeness_normal[tmp2] = 0;
+			level_completeness_practice[tmp2] = 0;
+		} while (++tmp2 < (0x40));
+		tmp2 = 0;
+		do {
+			achievements[tmp2] = 0;
+		} while (++tmp2 < (0x20));
+	invisible = 0;
+	color1 = 0x2A;
+	color2 = 0X2C;		
+	color3 = 0x0F;
+	discomode = 0;
+	icon = 0;
+	trails = 0;
+	retro_mode = 0;
+	//palette_cycle_mode = 0;
+	gameboy_mode = 0;
+	viseffects = 1;
+	invisblocks = 0;
+	cam_seesaw = 0;
+	return;
 }
