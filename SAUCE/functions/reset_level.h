@@ -1,18 +1,34 @@
 extern unsigned char drawing_frame;
 extern unsigned char* PARALLAX_CHR;
 
-void reset_level(void) {
+void music_restore();
+
+void reset_level() {
 	// unsigned char i;
-	if (!has_practice_point) famistudio_music_stop();
+	if (!practice_point_count || practice_music_sync) famistudio_music_stop();
 
-
+	gameState = 0x02; //fix for dying as the end trigger triggers
 	// slope stuff
-	was_on_slope_counter = 0;
-	slope_frames = 0;
-	slope_type = SLOPE_NONE;
-	last_slope_type = SLOPE_NONE;
-
+	currplayer_was_on_slope_counter = 0;
+	was_on_slope_counter[0] = 0;
+	was_on_slope_counter[1] = 0;
+	jumps = 0;
+	ufo_orbed = 0;
+	slowmode = 0;
+	slope_type[0] = SLOPE_NONE;
+	slope_type[1] = SLOPE_NONE;
+	currplayer_slope_type = SLOPE_NONE;
+	last_slope_type[0] = SLOPE_NONE;
+	last_slope_type[1] = SLOPE_NONE;
+	currplayer_last_slope_type = SLOPE_NONE;
+	curr_practice_point = latest_practice_point;
 	robotjumpframe[0] = 0;
+	slope_frames[0] = 0;
+	slope_frames[1] = 0;
+	nocamlockforced = 0;
+	minicoins = 0;
+	currplayer_slope_frames = 0;
+	make_cube_jump_higher = 0;
 	tmp1 = 30;
 	if (!DEBUG_MODE && (cube_data[0] & 1)) {
 		update_level_completeness();
@@ -27,6 +43,13 @@ void reset_level(void) {
 				else oam_meta_spr(high_byte(player_x[0])-2, high_byte(player_y[0])-2, ExplodeR_Sprites[robotjumpframe[0] & 0x7F]);
 				++robotjumpframe[0];
 			}
+//			pad_poll(0);
+			if (practice_point_count > 1 && (((mouse.connected ? 0 : joypad2.press) | joypad1.press) & PAD_SELECT)) {
+				curr_practice_point--;
+				if (curr_practice_point >= practice_point_count)
+					curr_practice_point = practice_point_count - 1;
+			}	
+
 			--tmp1;
 		}
 	}
@@ -43,11 +66,17 @@ void reset_level(void) {
 				
 				++robotjumpframe[0];
 			}
+			if (practice_point_count > 1 && (((mouse.connected ? 0 : joypad2.press) | joypad1.press) & PAD_SELECT)) {
+				curr_practice_point--;
+				if (curr_practice_point >= practice_point_count)
+					curr_practice_point = practice_point_count - 1;
+			}						
 			--tmp1;
 		}
 	}
 	pal_fade_to_withmusic(4,0);
 	oam_clear();
+	++auto_fs_updates;
 	ppu_off(); // reset the level when you get to this point, and change this later
 
 	scroll_y = 0x2EF;
@@ -72,18 +101,24 @@ void reset_level(void) {
 
 	memfill(jimsheatballalive, 0, MAX_FIREBALLS);
 
-	player_gravity[1] = twoplayer ? 0x00 : 0x01;
+	player_gravity[1] = twoplayer ? GRAVITY_DOWN : GRAVITY_UP;
 
-	currplayer_gravity = 0;
+	currplayer_gravity = GRAVITY_DOWN;
 
+	tmp1 = 0;
+	do {
+		activesprites_active[tmp1] = 0;
+	} while (++tmp1 < max_loaded_sprites);
 
-	dual = twoplayer ? 1 : 0x00;
-	player_gravity[0] = 0x00;
+	dual = twoplayer ? 1 : 0;
+	player_gravity[0] = GRAVITY_DOWN;
 	scroll_x = 0;
 	drawing_frame = 0;
 	gravity_mod = 0;
 	disco_sprites = 0;
-	mini = 0x00;
+	currplayer_mini = 0x00;
+	mini[0] = 0;
+	mini[1] = 0;
 	currplayer_vel_x = 0;
 	currplayer_vel_y = 0;
 	forced_trails = 0;
@@ -109,33 +144,22 @@ void reset_level(void) {
 	curr_x_scroll_stop = 0x5000;
 	target_x_scroll_stop = 0x5000;
 	discoframe = 0;
-	if (!has_practice_point) {
-	memfill(player_old_posy, 0, sizeof(player_old_posy));
-	memfill(trail_sprites_visible, 0, sizeof(trail_sprites_visible));
-	invincible_counter = 8;
+	if (!practice_point_count) {
+		memfill(player_old_posy, 0, sizeof(player_old_posy));
+		memfill(trail_sprites_visible, 0, sizeof(trail_sprites_visible));
+		invincible_counter = 8;
 	}
 
-	// since audio isn't playing at this point, we can put this in the DPCM bank
 	unrle_first_screen();
-	if (has_practice_point) {
 
-		tmp3 = practice_bg_color_type;
-			tmp2 = (tmp3 & 0x3F);                        
-			pal_col(0, tmp2);
-			pal_col(1, oneShadeDarker(tmp2)); 
-			pal_col(9, oneShadeDarker(tmp2)); 
-
-		tmp3 = practice_g_color_type;
-			tmp2 = (tmp3 & 0x3F);                        
-	    pal_col(6, tmp2);
-
-	    pal_set_update();
-	}
 	if (!no_parallax) mmc3_set_1kb_chr_bank_2(parallax_scroll_x + GET_BANK(PARALLAX_CHR));
 	ppu_on_all();
 	pal_fade_to_withmusic(0,4);
-	if (!has_practice_point) {
-	music_play(song);
+	if (!practice_point_count) {
+		music_play(song);
 	}
+	else if (practice_music_sync) {
+		crossPRGBankJump0(music_restore);
+	}		
 
 }

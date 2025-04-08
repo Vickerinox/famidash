@@ -3,15 +3,15 @@ CODE_BANK_PUSH("XCD_BANK_01")
 
 void ball_eject();
 void common_gravity_routine();
-void ball_movement(void){
+void ball_movement(){
 // handle y
 
 	// currplayer_gravity
 	// currplayer_vel_y is signed
 
-	if ((controllingplayer->press_a) && currplayer_vel_y != 0) idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x02);
+//	if ((controllingplayer->press_a) && currplayer_vel_y != 0) idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x02);
 
-	if (gamemode == 7) {
+	if (gamemode == GAMEMODE_SWING) {
 
 		fallspeed_big = SWING_MAX_FALLSPEED;
 		fallspeed_mini = MINI_SWING_MAX_FALLSPEED;
@@ -45,7 +45,7 @@ void ball_movement(void){
 		Generic.y = high_byte(currplayer_y) + 1;
 	}
 
-	if (controllingplayer->press_a) idx8_store(cube_data, currplayer, cube_data[currplayer] | 2);	
+	//if (controllingplayer->press_a || controllingplayer->press_up) idx8_store(cube_data, currplayer, cube_data[currplayer] | 2);	
 
 	ball_eject();
 
@@ -62,7 +62,6 @@ void ball_movement(void){
 
 			ball_eject();
 	}
-
 	else {
 		if (tallmode) {
 			
@@ -81,6 +80,8 @@ void ball_movement(void){
 			ball_eject();
 		}
 	}
+
+	Generic.y = high_byte(currplayer_y);
 	Generic.x = high_byte(currplayer_x);
 
 	// this literally offsets the collision down 1 pixel for the vel reset to happen every frame instead of each other frame
@@ -89,51 +90,53 @@ void ball_movement(void){
 	} else {
 		Generic.y = high_byte(currplayer_y) + 1;
 	}
-
-	if (gamemode == 2) {
-		if ((controllingplayer->a) && (kandotemp2[currplayer] == 0) && currplayer_vel_y == 0){
-			currplayer_gravity ^= 0x01;
-			kandotemp2[currplayer] = 1;
+	#define BALL_SWITCH_VEL 0x200
+	#define MINI_BALL_SWITCH_VEL 0x120
+	if (gamemode == GAMEMODE_BALL) {
+		if (((controllingplayer->a || controllingplayer->up)) && (ball_switched[currplayer] == 0) && currplayer_vel_y == 0){
+			jumps++;
+			invert_gravity(currplayer_gravity);
+			ball_switched[currplayer] = 1;
 			switch (currplayer_gravity){
-				case 0x00: currplayer_vel_y = 0x100; break;
-				case 0x01: currplayer_vel_y = -0x100; break;
+				case GRAVITY_DOWN: currplayer_vel_y = currplayer_mini ? MINI_BALL_SWITCH_VEL : BALL_SWITCH_VEL; break;
+				case GRAVITY_UP: currplayer_vel_y = currplayer_mini ? -MINI_BALL_SWITCH_VEL : -BALL_SWITCH_VEL; break;
 			}
 			bg_coll_floor_spikes();
 		}
-		if(kandotemp2[currplayer] == 1){
-			if (!(controllingplayer->a)){
+		if(ball_switched[currplayer]){
+			if (!(controllingplayer->hold & (PAD_A | PAD_UP))){
 				idx8_store(cube_data, currplayer, cube_data[currplayer] & 1);
-				kandotemp2[currplayer] = 0;			
+				ball_switched[currplayer] = 0;			
 			}
 		}
 	}
 	else {
-		if ((controllingplayer->press_a)){
-			currplayer_gravity ^= 0x01;
+		if ((controllingplayer->press_a || controllingplayer->press_up) && !ufo_orbed){
+			invert_gravity(currplayer_gravity);
 			bg_coll_floor_spikes();
 		}
 	}		
-
+	ufo_orbed = 0;
 }
 
 void ball_eject() {
 	
-		if(high_byte(currplayer_vel_y) & 0x80){
+		//if(high_byte(currplayer_vel_y) & 0x80){
 			if(bg_coll_U()){ // check collision above
 				high_byte(currplayer_y) = high_byte(currplayer_y) - eject_U;
 				currplayer_vel_y = 0;
 				orbactive = 0;
 				idx8_store(cube_data, currplayer, cube_data[currplayer] & 1);			//fix for orb
 			}
-		}
-		else{
+		//}
+		//else{
 			if(bg_coll_D()){ // check collision below
 			    high_byte(currplayer_y) = high_byte(currplayer_y) - eject_D;
 			    currplayer_vel_y = 0;
 				orbactive = 0;
 				idx8_store(cube_data, currplayer, cube_data[currplayer] & 1);		    //fix for orb
 			}
-		}		
+		//}		
 
 }	
 

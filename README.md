@@ -3,19 +3,17 @@
 
 A demake of Geometry Dash for the NES using the MMC3 mapper.
 
-## development builds
+## Nightly Builds
 
-You can find nightly dev builds in the Actions tab. Alternatively you can download them [here](https://nightly.link/tfdsoft/famidash/workflows/main/main/famidash.nes.zip).
+You can find nightly builds [here](https://nightly.link/tfdsoft/famidash/workflows/main/main/famidash.nes.zip).
+
+You can find the B-Sides nightly [here](https://nightly.link/tfdsoft/famidash/workflows/main/Famidash-b-sides/famidash.nes.zip).
+
+You can find the VS branch nightly [here](https://nightly.link/tfdsoft/famidash/workflows/main/vs-famidash-again/famidash.nes.zip).
 
 ## contributing
 
-``TODO proper guide``
-
-Here are some instructions for specifically contributing to [levels](LEVELS/EXPORT%20LEVELS%20INSTRUCTIONS.txt) and [music](MUSIC/README.txt).
-
-The general principle is: fork it, change it, push it, open a PR, get it merged (or not).
-
-*(usersniper recommends working on the game using vscode on linux)*
+See [CONTRIBUTING.md](CONTRIBUTING.md). You'll find guides for adding music and levels there.
 
 ## socials
 
@@ -23,29 +21,44 @@ The general principle is: fork it, change it, push it, open a PR, get it merged 
 - https://twitter.com/TFDSoft
 - https://discord.gg/PCbwQaZs8K
 
-## credits (core team only)
+## credits
+### core team
 
 |contributor|role (in no particular order)|
 |---|---|
-|[Zephyrside](https://github.com/zephyrside)/[UserSniper](https://github.com/usersniper)|primary lead developer, project creator, coding, music, graphics|
-|[kandowontu](https://github.com/kandowontu)|director, secondary lead developer, maintainer|
-|[AleFunky](https://github.com/PinguLinux)|core code, levels, testing, bugfixes|
+|[Zephyrside](https://github.com/zephyrside)/[UserSniper](https://github.com/usersniper)|project creator, former lead developer, code, music, graphics|
+|[kandowontu](https://github.com/kandowontu)|director, current lead developer, maintainer|
 |[Ficus mcHousePlant](https://github.com/FicusmcHousePlant)|levels, guidance, testing, bugfixes, graphics|
-|[alexmush](https://github.com/ADM228)|code, code optimization, music|
+|[alexmush](https://github.com/ADM228)|code, asm, code optimisation, music|
 |[jroweboy](https://github.com/jroweboy)|graphics, code optimisation, parallax, menu, etc|
 |[Zenith](https://github.com/ZenithNeko)|music, graphics|
+|[jaezu](https://github.com/jaezudev)|i'm solely here because of kando's orders|
+|[ElAngel378](https://github.com/ElAngel378)|music|
+|[SeaGlowingPro](https://github.com/SeaGlowingPro)|levels, music|
+|[KawaiiDawn](https://github.com/Astroclimber26)|levels|
 
-
-
-## additional staff
+### additional staff
 
 |contributor|role (in no particular order)|
 |---|---|
 |Aquamarine|music|
 |[vikrinox](https://github.com/Vickerinox)|music|
-|AdryanLucas096|icons, graphics|
-|Zee_Scott|icons|
-|[StudsX](https://github.com/smbhacks)|ASM, music|
+|[adrluc096](https://github.com/123456oil)|icons, graphics|
+|Zee_Scott|icons, graphics|
+|[StudsX](https://github.com/smbhacks)|asm, music, pcm code|
 |cloud54|various music tracks and art|
+|[RedGD](https://github.com/RedGeometryDash)|icons, graphics|
+|[AnnoyedArt1256](https://github.com/AnnoyedArt1256)|level compression asm|
+|[sussysy](https://github.com/VECTREX45)|music|
+|[Crafty Jumper](https://github.com/Crafty-Jumper)|levels, music|
+|[banana6000](https://github.com/xXFamidashFan69Xx)|icons, levels|
+|[bigfloppa385](https://github.com/Nintendo-Bro385)|icons, levels|
+|[AleFunky](https://github.com/AleFunky)|code, levels, testing, bugfixes|
+|NerdBoy628|levels, music|
+|blacecaptainn|icon contest winner|
+|dtpls|icon contest winner|
+|ps_lol|icon contest winner|
+|notapotato|icon contest winner|
+|LemonAid!|icon contest winner|
 
 Shoutout to RobTop for making all of this possible by creating Geometry Dash in the first place. Hope this silly project of ours is able to pay justice to his masterpiece.

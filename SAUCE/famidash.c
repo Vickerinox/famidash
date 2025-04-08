@@ -49,8 +49,10 @@ void main(){
     // ppu_on_all();
     // pal_fade_to(4,0);
 
+	// needed for cc65 to export the label for mesen
+    gameState = 0x01;
+	
 	// These are done at init time
-    // gameState = 0x01;
     // level = 0x00;
 	// auto_fs_updates = 0;
 
@@ -59,11 +61,11 @@ void main(){
 
 
 	pal_spr(paletteDefaultSP);
-	kandotemp = 0;
+	menuMusicCurrentlyPlaying = 0;
 	crossPRGBankJump0(gameboy_check);
 	gameState = 0x05;
     while (1){
-        ppu_wait_nmi();
+		ppu_wait_nmi();
 		switch (gameState){
 			case 0x01: {
 				mmc3_set_prg_bank_1(GET_BANK(state_menu));
@@ -75,7 +77,7 @@ void main(){
 					kandowatchesyousleep = 1;
 
 					//
-					has_practice_point = 0;
+					practice_point_count = 0;
 					#include "defines/mainmenu_charmap.h"
 					levelselection();
 				}
@@ -97,6 +99,7 @@ void main(){
 				break;
 			}
 			case 0x05: {
+				music_play(song_scheming_weasel);
 				mmc3_set_prg_bank_1(GET_BANK(state_savefile_validate));
 				state_savefile_validate();
 				break;
@@ -113,7 +116,11 @@ void main(){
 				funsettings();
 				break;
 			}
-
+			case 0xF1: {
+				mmc3_set_prg_bank_1(GET_BANK(state_instructions));
+				state_instructions();
+				break;
+			}
 			case 0xFE: {
 				mmc3_set_prg_bank_1(GET_BANK(state_exit));
 				state_exit();
@@ -155,7 +162,7 @@ void setdefaultoptions() {
 	SRAM_VALIDATE[0] = 0x13;
 	SRAM_VALIDATE[1] = 0x37;
 	SRAM_VALIDATE[2] = FLAG_SAVE_VER;
-	
+	forced_credits = 1;
 	// only non-zero values need to be set here
 
 	twoplayer = 0;
@@ -165,19 +172,19 @@ void setdefaultoptions() {
 	//oneptwoplayer = 0;
 	//platformer = 0;
 	options = 0; 
-		tmp2 = 0;
-		do {
-			coin1_obtained[tmp2] = 0;
-			coin2_obtained[tmp2] = 0;
-			coin3_obtained[tmp2] = 0;
-			LEVELCOMPLETE[tmp2] = 0;
-			level_completeness_normal[tmp2] = 0;
-			level_completeness_practice[tmp2] = 0;
-		} while (++tmp2 < (0x40));
-		tmp2 = 0;
-		do {
-			achievements[tmp2] = 0;
-		} while (++tmp2 < (0x20));
+	tmp2 = 0;
+	do {
+		coin1_obtained[tmp2] = 0;
+		coin2_obtained[tmp2] = 0;
+		coin3_obtained[tmp2] = 0;
+		LEVELCOMPLETE[tmp2] = 0;
+		level_completeness_normal[tmp2] = 0;
+		level_completeness_practice[tmp2] = 0;
+	} while (++tmp2 < (0x60));
+	tmp2 = 0;
+	do {
+		achievements[tmp2] = 0;
+	} while (++tmp2 < (0x20));
 	invisible = 0;
 	color1 = 0x2A;
 	color2 = 0X2C;		
@@ -191,5 +198,8 @@ void setdefaultoptions() {
 	viseffects = 1;
 	invisblocks = 0;
 	cam_seesaw = 0;
+	menu_music = 0;
+	auto_practicepoints = 1;
+	practice_music_sync = 0;
 	return;
 }

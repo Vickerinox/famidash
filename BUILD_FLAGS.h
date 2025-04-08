@@ -50,7 +50,7 @@
 // Minor Version Number
 // increment by 1 for officially released patches.
 // does nothing if FLAG_BETA_BUILD is uncommented.
-#define FLAG_MIN_VER '0'
+#define FLAG_MIN_VER '2'
 // ============================================================
 
 
@@ -75,5 +75,5 @@
 //
 // Save File Version
 // increase by 1 if SRAM values are added, changed or deleted.
-#define FLAG_SAVE_VER 0x0E
+#define FLAG_SAVE_VER 0x30
 // ============================================================

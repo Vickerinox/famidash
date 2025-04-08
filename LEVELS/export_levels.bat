@@ -17,14 +17,37 @@ SET all_levels= ^
     clutterfunk ^
     theoryofeverything ^
     electroman ^
+    clubstep ^
+    electrodynamix ^
+    hexagonforce ^
+    blastprocessing ^
+    toe2 ^
+    geometricaldominator ^
+    deadlocked ^
+    fingerdash ^
+    dash ^
+    retray ^
+    thechallenge ^
+    dreamer ^
+    groundtospace ^
+    kappaclysm ^
+    sunshine ^
+    revolution ^
+    lostinthewoods ^
+    bloodbathbutno ^
+    rainbowtylenol ^
+    aprettyeasylevel ^
+    thelightningroad ^
     nightmare ^
+    demonpark ^
+    deathmoon ^
     decode ^
+    dearnostalgists ^
+    problematic ^
+    firetemple ^
+    foresttemple ^
     luckydraw ^
-    test ^
-    test2 ^
-    test3 ^
-    test4 ^
-    danger ^
+	test4 ^
 
 
 echo Exporting everything %all_levels%

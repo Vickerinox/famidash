@@ -4,17 +4,12 @@ CODE_BANK_PUSH("XCD_BANK_01")
 void cube_vel_stuff();
 void spider_eject();
 void common_gravity_routine();
-void scroll_thing_again();
-void spider_movement(void){
-// handle y
+void spider_movement(){
 
-// currplayer_gravity
-	// currplayer_vel_y is signed
-	//if(currplayer_vel_y < 0x400){
-	fallspeed_big = CUBE_MAX_FALLSPEED;
-	fallspeed_mini = MINI_CUBE_MAX_FALLSPEED;
-	gravity_big = CUBE_GRAVITY;
-	gravity_mini = MINI_CUBE_GRAVITY;
+	fallspeed_big = SPIDER_MAX_FALLSPEED;
+	fallspeed_mini = MINI_SPIDER_MAX_FALLSPEED;
+	gravity_big = SPIDER_GRAVITY;
+	gravity_mini = MINI_SPIDER_GRAVITY;
 
 	common_gravity_routine();
 
@@ -30,32 +25,22 @@ void spider_movement(void){
 	spider_eject();
 	
 	if (!currplayer_gravity) {
-		if(controllingplayer->press_a && currplayer_vel_y == 0) {
-			currplayer_gravity = 1;
-			do {
-				high_byte(currplayer_y) -= 0x08;
-				//scroll_thing_again();
-				set_scroll_y(scroll_y);
-				if (currplayer_y < 0x0600 && scroll_y <= min_scroll_y){
-					idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x01);	//DIE if player goes too high
-					break;
-				}
-				Generic.y = high_byte(currplayer_y); // the rest should be the same
-			} while (!bg_coll_U());
+		if(((controllingplayer->press_a || controllingplayer->press_up) || cube_data[currplayer] & 2) && currplayer_vel_y == 0 && !orbed[currplayer]) {
+			idx8_store(cube_data, currplayer, cube_data[currplayer] & 0b11111101);	
+			jumps++;
+			currplayer_gravity = GRAVITY_UP;
+			spider_up_wait();
 			high_byte(currplayer_y) -= eject_U;
 			currplayer_vel_y = 0;
 		}
 }	
 	else {
-		if(controllingplayer->press_a && currplayer_vel_y == 0) {
-			currplayer_gravity = 0;
-			do {
-				high_byte(currplayer_y) += 0x08;
-				//scroll_thing_again();
-				set_scroll_y(scroll_y);
-				
-				Generic.y = high_byte(currplayer_y); // the rest should be the same
-			} while (!bg_coll_D());
+		if(((controllingplayer->press_a || controllingplayer->press_up) || cube_data[currplayer] & 2) && currplayer_vel_y == 0 && !orbed[currplayer]) {
+			jumps++;
+			idx8_store(cube_data, currplayer, cube_data[currplayer] & 0b11111101);
+			currplayer_gravity = GRAVITY_DOWN;
+
+			spider_down_wait();
 
 			high_byte(currplayer_y) -= eject_D;
 			
@@ -76,48 +61,9 @@ void spider_movement(void){
 	// check collision down a little lower than CUBE
 	Generic.y = high_byte(currplayer_y); // the rest should be the same
 
-	if (currplayer_vel_y != 0){
-		if(controllingplayer->press_a) {
-			idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x02);
-		}
-	}
+
 }	
 
-
-void scroll_thing_again(void) {
-	if (!dual) {
-		if (currplayer_y < 0x4000 && (scroll_y > min_scroll_y)){ // change y scroll (upward)
-			tmp1 = MSB(0x4000 - currplayer_y);
-			scroll_y -= tmp1;
-			high_byte(currplayer_y) = high_byte(currplayer_y) + tmp1;
-		}
-		cap_scroll_y_at_top();
-
-		
-		if (currplayer_y > 0xA000){ // change y scroll (upward)
-			tmp1 = MSB(currplayer_y - 0xA000);
-			scroll_y += tmp1;
-			if (high_byte(scroll_y) < MSB(0x300)) high_byte(currplayer_y) = high_byte(currplayer_y) - tmp1;
-		}
-		if (high_byte(scroll_y) >= MSB(0x300)) scroll_y = 0x2EF;
-	}
-	else {
-		if (currplayer_y < 0x0700 && (scroll_y > min_scroll_y)){ // change y scroll (upward)
-			tmp1 = MSB(0x0700 - currplayer_y);
-			scroll_y -= tmp1;
-			high_byte(currplayer_y) = high_byte(currplayer_y) + tmp1;
-		}
-		cap_scroll_y_at_top();
-
-		
-		if (currplayer_y > 0xF000){ // change y scroll (upward)
-			tmp1 = MSB(currplayer_y - 0xF000);
-			scroll_y += tmp1;
-			if (high_byte(scroll_y) < MSB(0x300)) high_byte(currplayer_y) = high_byte(currplayer_y) - tmp1;
-		}
-		if (high_byte(scroll_y) >= MSB(0x300)) scroll_y = 0x2EF;
-	}
-}					
 
 
 void spider_eject() {
@@ -136,5 +82,31 @@ void spider_eject() {
 		} 
 	}
 }
+#define LEFT_POS tmp7
+#define RIGHT_POS tmp9
+void spider_up_wait() {
+	LEFT_POS = Generic.x + low_word(scroll_x) + 3;
+	RIGHT_POS = Generic.x + low_word(scroll_x) + Generic.width - 3;
+	do {
+		high_byte(currplayer_y) -= 0x08;
+		crossPRGBankJump0(do_the_scroll_thing);
+		if (high_byte(currplayer_y) <= 0x07){ // && scroll_y <= min_scroll_y
+			idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x01);	//DIE if player goes too high
+			break;
+		}
+		Generic.y = high_byte(currplayer_y); // the rest should be the same
+	} while (!bg_coll_U_spider());
+}			
 
+void spider_down_wait() {
+	LEFT_POS = Generic.x + low_word(scroll_x) + 3;
+	RIGHT_POS = Generic.x + low_word(scroll_x) + Generic.width - 3;
+	do {
+		high_byte(currplayer_y) += 0x08;
+		crossPRGBankJump0(do_the_scroll_thing);
+		Generic.y = high_byte(currplayer_y); // the rest should be the same
+	} while (!bg_coll_D_spider());
+}				
+#undef LEFT_POS
+#undef RIGHT_POS
 CODE_BANK_POP()

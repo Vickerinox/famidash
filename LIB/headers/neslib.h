@@ -109,6 +109,9 @@ void __fastcall__ _oam_spr(uint32_t args);
 void __fastcall__ _oam_meta_spr(uint32_t args);
 #define oam_meta_spr(x, y, data)(storeBytesToSreg(x, y), __AX__ = (uintptr_t)data, _oam_meta_spr(__EAX__))
 
+void __fastcall__ _oam_meta_spr_disco(uint32_t args);
+#define oam_meta_spr_disco(x, y, data)(storeBytesToSreg(x, y), __AX__ = (uintptr_t)data, _oam_meta_spr_disco(__EAX__))
+
 //hide all remaining sprites from given offset
 // Note: sprid removed for speed
 // Now also changes sprid (index to buffer) to zero
@@ -128,7 +131,7 @@ uint8_t __fastcall__ oam_get();
 
 //poll controller and return flags like PAD_LEFT etc, input is pad number (0 or 1)
 
-// uint8_t __fastcall__ pad_poll(uint8_t pad);
+uint8_t __fastcall__ pad_poll(uint8_t pad);
 
 //poll controller in trigger mode, a flag is set only on button down, not hold
 //if you need to poll the pad in both normal and trigger mode, poll it in the
@@ -170,7 +173,7 @@ void __fastcall__ bank_spr(uint8_t n);
 
 uint8_t __fastcall__ newrand();
 //uint8_t __fastcall__ rand8();
-uint16_t  __fastcall__ rand16();
+// uint16_t  __fastcall__ rand16();
 
 //set random seed
 

@@ -2,15 +2,17 @@
 CODE_BANK_PUSH("XCD_BANK_01")
 
 void wave_eject();
-void wave_movement(void){
+void wave_movement(){
 
 	if (!dashing[currplayer]) {
 		
-		currplayer_vel_y = !mini ? (currplayer_gravity ? -currplayer_vel_x : currplayer_vel_x) : (currplayer_gravity ? -(currplayer_vel_x << 1) : (currplayer_vel_x << 1));
+		currplayer_vel_y = !currplayer_mini ? 
+			(currplayer_gravity ? -currplayer_vel_x : currplayer_vel_x) :
+			(currplayer_gravity ? -(currplayer_vel_x << 1) : (currplayer_vel_x << 1));
 		
-		if (controllingplayer->a) currplayer_vel_y = -currplayer_vel_y;
+		if (controllingplayer->a || controllingplayer->up) currplayer_vel_y = -currplayer_vel_y;
 
-		if (!slope_frames && !was_on_slope_counter) {
+		if (!currplayer_slope_frames && !currplayer_was_on_slope_counter) {
 			currplayer_y += currplayer_vel_y;
 		} else {
 			currplayer_vel_y = 0;
@@ -23,7 +25,7 @@ void wave_movement(void){
 	else if (dashing[currplayer] == 5) { currplayer_vel_y = currplayer_vel_x; currplayer_y += currplayer_vel_y; }	
 	else currplayer_vel_y = 1;
 
-	Generic.x = high_byte(currplayer_x);
+	Generic.x = high_byte(currplayer_x) + 4;
 	
 	// this literally offsets the collision down 2 pixel for the vel reset to happen every frame instead of each other frame
 	Generic.y = high_byte(currplayer_y) + ((high_byte(currplayer_vel_y) & 0x80) ? 2 : -2);
@@ -56,11 +58,11 @@ void wave_movement(void){
 	Generic.x = high_byte(currplayer_x);
 	Generic.y = high_byte(currplayer_y);
 
-	if (currplayer_vel_y != 0 && !slope_type){
-		if(controllingplayer->press_a) {
-			idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x02);
-		}
-	}
+//	if (currplayer_vel_y != 0 && !slope_type){
+//		if(controllingplayer->press_a || controllingplayer->press_up) {
+//			idx8_store(cube_data, currplayer, cube_data[currplayer] | 0x02);
+//		}
+//	}
 	
 }	
 
@@ -90,5 +92,6 @@ void wave_eject() {
 		}
 	}
 }
+
 
 CODE_BANK_POP()

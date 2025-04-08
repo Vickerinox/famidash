@@ -18,11 +18,14 @@
 #include "famistudio_cc65.h" // sound driver
 
 #include "MUSIC/EXPORTS/musicDefines.h" // sound driver C defines
+#include "MUSIC/EXPORTS/sfxDefines.h" // sound driver C defines
 
+// various game-essential defines
+#include "defines/space_defines.h"
+#include "defines/physics_defines.h"
+#include "defines/level_defines.h"
 
-
-
-// grounds goes here
+// grounds go here
 #pragma rodata-name (push, "XCD_BANK_03")
 #include "defines/menunametable.h"
 #pragma rodata-name (pop)
@@ -72,7 +75,7 @@
 #include "defines/menutext2.h" // end level text, not obviously.
 #pragma rodata-name (pop)
 
-#include "functions/fade_timer.h"
+//#include "functions/fade_timer.h"
 #include "functions/reset_game_vars.h"
 #include "functions/draw_sprites.h"  // sproit drawlign
 #include "functions/level_loading.h"  // goofy ass screen drawing routines
@@ -102,7 +105,7 @@
 #include "gamestates/state_menu.h"
 #include "gamestates/state_game.h"
 
-#include "gamestates/state_sorrynothing.h"
+//#include "gamestates/state_sorrynothing.h"
 
 #include "gamestates/state_lvldone.h"
 #include "gamestates/state_demo.h"
